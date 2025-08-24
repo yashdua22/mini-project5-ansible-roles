@@ -1,0 +1,13 @@
+---
+- name: Install Tomcat
+  apt:
+    name: tomcat9
+    state: present
+    update_cache: yes
+
+- name: Ensure Tomcat is running
+  service:
+    name: tomcat9
+    state: started
+    enabled: yes
+

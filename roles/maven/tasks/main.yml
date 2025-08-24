@@ -1,0 +1,45 @@
+---
+- name: Ensure dependencies are installed
+  ansible.builtin.apt:
+    name:
+      - curl
+      - tar
+      - default-jdk
+    state: present
+    update_cache: yes
+
+- name: Download Maven {{ maven_version }}
+  ansible.builtin.get_url:
+    url: "https://dlcdn.apache.org/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+    dest: "/tmp/maven.tar.gz"
+    mode: '0644'
+
+- name: Create Maven install directory
+  ansible.builtin.file:
+    path: "{{ maven_install_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract Maven
+  ansible.builtin.unarchive:
+    src: "/tmp/maven.tar.gz"
+    dest: "{{ maven_install_dir }}"
+    remote_src: yes
+    creates: "{{ maven_install_dir }}/apache-maven-{{ maven_version }}"
+
+- name: Symlink Maven to /opt/maven/latest
+  ansible.builtin.file:
+    src: "{{ maven_install_dir }}/apache-maven-{{ maven_version }}"
+    dest: "{{ maven_install_dir }}/latest"
+    state: link
+
+- name: Add Maven to PATH
+  ansible.builtin.copy:
+    dest: /etc/profile.d/maven.sh
+    content: |
+      export M2_HOME={{ maven_install_dir }}/latest
+      export PATH=$M2_HOME/bin:$PATH
+    mode: '0755'
+
+
+

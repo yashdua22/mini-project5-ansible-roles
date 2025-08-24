@@ -1,0 +1,14 @@
+---
+- name: Setup full stack on Ubuntu
+  hosts: webhosts
+  become: true
+  roles:
+    - docker
+    - mysql
+    - nginx
+    - memcached
+    - jdk
+    - jenkins
+    - rabbitmq
+    
+

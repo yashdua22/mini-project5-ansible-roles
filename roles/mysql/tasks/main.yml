@@ -1,0 +1,37 @@
+---
+- name: Install MySQL 8.0
+  apt:
+    name: mysql-server
+    state: present
+    update_cache: yes
+
+- name: Install Python MySQL dependencies
+  apt:
+    name: python3-pymysql
+    state: present
+
+- name: Ensure MySQL is running
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+# Step 1: Change root authentication plugin to mysql_native_password
+- name: Set root password and switch auth plugin
+  command: >
+    mysql -u root -e
+    "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'rootpass123'; FLUSH PRIVILEGES;"
+
+# Step 2: Now we can use mysql_user module
+- name: Create MySQL user yash
+  mysql_user:
+    login_user: root
+    login_password: "rootpass123"
+    name: yash
+    password: "yash@123"
+    priv: "*.*:ALL"
+    host: "%"
+    state: present
+
+
+

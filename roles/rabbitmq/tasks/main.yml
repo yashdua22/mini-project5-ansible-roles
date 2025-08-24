@@ -1,0 +1,34 @@
+---
+- name: Ensure apt dependencies are installed
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - apt-transport-https
+      - curl
+      - software-properties-common
+    state: present
+    update_cache: yes
+
+- name: Add RabbitMQ signing key
+  ansible.builtin.apt_key:
+    url: https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
+    state: present
+
+- name: Add RabbitMQ repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ {{ ansible_distribution_release }} main"
+    state: present
+    filename: rabbitmq
+
+- name: Install RabbitMQ server
+  ansible.builtin.apt:
+    name: "rabbitmq-server={{ rabbitmq_version }}"
+    state: present
+    update_cache: yes
+
+- name: Ensure RabbitMQ service is enabled and started
+  ansible.builtin.systemd:
+    name: rabbitmq-server
+    enabled: yes
+    state: started
+
